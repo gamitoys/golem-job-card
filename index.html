@@ -126,12 +126,8 @@
     box-shadow:0 3px 0 #1c5a28;
   }
   #roll:disabled { filter:grayscale(.45); opacity:.5; }
-  #rest {
-    display:none; border:0; border-radius:10px; padding:8px 14px;
-    background:linear-gradient(#8ec4e8,#2a6a9a); color:#083012; font-weight:800; font-size:13px;
-    box-shadow:0 3px 0 #1c4a68;
-  }
-  body.fight #rest { display:block; }
+  #rest { display:none !important; }
+  body.fight #rest { display:none !important; }
   body.fight #roll { display:none; }
   body.fight .scene { display:none; }
 
@@ -699,7 +695,7 @@
   <div id="hint" class="act">サイコロを押して進む</div>
   <div id="log">サイコロで石畳を進め</div>
   <div class="dicebar">
-    <div id="coachDice" class="coach hide">▼<span>転がす</span></div>
+    <div id="coachDice" class="coach hide">▼</div>
     <div class="scene" id="diceTap" onclick="roll()">
       <div id="cube">
         <div class="face f1"><div class="grid"><i></i><i></i><i></i><i></i><i><b class="pip"></b></i><i></i><i></i><i></i><i></i></div></div>
