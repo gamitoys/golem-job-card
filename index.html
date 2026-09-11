@@ -547,9 +547,14 @@
       linear-gradient(180deg, rgba(40,8,28,.18), rgba(40,8,28,.72)),
       #6a2450 var(--g42) center top / cover no-repeat;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    padding: calc(8px + env(safe-area-inset-top)) 0 calc(8px + env(safe-area-inset-bottom));
+    box-sizing:border-box;
   }
   #cover.hide { display:none; }
-  .titlepack { position:absolute; top:8%; left:0; right:0; text-align:center; z-index:2; pointer-events:none; }
+  .titlepack {
+    position:relative; width:100%; text-align:center; z-index:2; pointer-events:none;
+    flex:0 0 auto; margin:0;
+  }
   #titleLogo {
     width:88%; max-width:440px; height:auto; display:block; margin:0 auto;
     filter:drop-shadow(0 4px 10px rgba(0,0,0,.55));
@@ -561,21 +566,26 @@
   }
   #coverTitle.hide { display:none !important; }
   #titleHero {
-    position:absolute; left:50%; top:40%; transform:translate(-50%,-50%);
-    width:72%; max-height:42%; object-fit:contain; pointer-events:none;
+    position:relative; left:auto; top:auto; transform:none;
+    width:76%; flex:1 1 auto; min-height:0;
+    object-fit:contain; object-position:center bottom;
+    pointer-events:none; z-index:1;
     filter:drop-shadow(0 10px 12px rgba(0,0,0,.45));
-    pointer-events:none;
+    margin:2px 0 0;
   }
   #titleHero.hide { display:none !important; }
   #loseHero {
-    position:absolute; left:50%; top:40%; transform:translate(-50%,-50%);
-    width:82%; max-height:48%; object-fit:contain; pointer-events:none;
+    position:relative; left:auto; top:auto; transform:none;
+    width:76%; flex:1 1 auto; min-height:0;
+    object-fit:contain; object-position:center bottom;
+    pointer-events:none; z-index:1;
     filter:drop-shadow(0 10px 12px rgba(0,0,0,.55));
-    z-index:2;
+    margin:2px 0 0;
   }
   #loseHero.hide { display:none !important; }
   .panel {
-    width:88%; margin-bottom:6%; background:rgba(28,10,22,.88);
+    width:88%; flex:0 0 auto; z-index:3; position:relative;
+    margin:6px 0 0; background:rgba(28,10,22,.88);
     border:3px solid #e8c15a; border-radius:16px; padding:16px; text-align:center; color:#fff;
   }
   .panel h1 { margin:0 0 2px; font-size:24px; color:#ffe9a8; }
