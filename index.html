@@ -344,7 +344,7 @@
   #zoomCard { transform:none !important; width:210px; height:300px; pointer-events:auto; }
   #zoomHint { color:#ffe9a8; font-size:13px; margin:10px 0; }
   #zoom button { width:70%; padding:12px; border:0; border-radius:12px; font-weight:800; background:#7ad06a; color:#083012; }
-  #story { position:absolute; inset:0; z-index:220; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; }
+  #story { position:absolute; inset:0; z-index:960; pointer-events:auto; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; }
   #story.hide { display:none; }
   #shop { position:absolute; inset:0; z-index:420; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; pointer-events:auto; }
   #shop.hide { display:none !important; pointer-events:none; }
@@ -374,13 +374,13 @@
   #shop .wallet b { color:#7ad06a; font-size:22px; }
   #shop .wallet.flash { animation:shopFlash .45s ease; }
   @keyframes shopFlash { 0%{ background:#2f8a45; } 100%{ background:rgba(0,0,0,.4); } }
-  #jk { position:absolute; inset:0; z-index:220; background:rgba(8,4,10,.55); display:flex; align-items:center; justify-content:center; }
+  #jk { position:absolute; inset:0; z-index:960; pointer-events:auto; background:rgba(8,4,10,.55); display:flex; align-items:center; justify-content:center; }
   #jk.hide { display:none; }
-  #cfg { position:absolute; inset:0; z-index:220; background:rgba(8,4,10,.55); display:flex; align-items:center; justify-content:center; }
+  #cfg { position:absolute; inset:0; z-index:960; pointer-events:auto; background:rgba(8,4,10,.55); display:flex; align-items:center; justify-content:center; }
   #cfg.hide { display:none; }
   #cfg label { font-size:15px; color:#f3d7b0; }
   #tut {
-    position:absolute; inset:0; z-index:220;
+    position:absolute; inset:0; z-index:960; pointer-events:auto;
     background:rgba(8,4,10,.55);
     display:flex; align-items:flex-end; justify-content:center;
   }
@@ -604,10 +604,11 @@
   #medal.gold b { background-image:var(--g41); }
   #medal span { display:block; margin-top:4px; font-size:13px; color:#ffe9a8; }
   #cover {
-    position:absolute; inset:0; z-index:900;
-    isolation:isolate;
-    transform:translateZ(40px);
-    -webkit-transform:translateZ(40px);
+    position:absolute; inset:0; z-index:200;
+    isolation:auto;
+    transform:none;
+    -webkit-transform:none;
+    pointer-events:auto;
     background-color:#5a2048;
     background-image:
       linear-gradient(180deg, rgba(40,8,28,.18), rgba(40,8,28,.72)),
@@ -2544,10 +2545,18 @@ function bindTap(el, fn){
   el.addEventListener("pointerup", go);
   el.addEventListener("click", go);
 }
-bindTap(document.getElementById("start"), ()=>showStory(()=>reset(false)));
-bindTap(document.getElementById("how"), ()=>showTut(0));
-bindTap(document.getElementById("cont"), ()=>reset(true));
-bindTap(document.getElementById("again"), ()=>startLoop());
+function bindTitle(id, fn){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.style.pointerEvents="auto";
+  el.style.zIndex="80";
+  bindTap(el, fn);
+  el.addEventListener("touchend", e=>{ try{ e.preventDefault(); e.stopPropagation(); }catch(err){} fn(e); }, {passive:false});
+}
+bindTitle("start", ()=>showStory(()=>reset(false)));
+bindTitle("how", ()=>showTut(0));
+bindTitle("cont", ()=>reset(true));
+bindTitle("again", ()=>startLoop());
 bindTap(document.getElementById("dbgBtn"), openDebug);
 bindTap(document.getElementById("dbgClose"), ()=>document.getElementById("dbg").classList.add("hide"));
 bindTap(document.getElementById("dbgAll"), ()=>{
