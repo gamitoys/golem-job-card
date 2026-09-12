@@ -644,7 +644,7 @@
       #2a6a38 var(--g3) center top / cover no-repeat;
   }
   .titlepack {
-    position:relative; width:100%; text-align:center; z-index:2; pointer-events:none;
+    position:relative; width:100%; text-align:center; z-index:2; pointer-events:auto;
     flex:0 0 auto; margin:0;
   }
   #titleLogo {
@@ -686,7 +686,7 @@
   }
   #winHero.hide { display:none !important; }
   .panel {
-    width:88%; flex:0 0 auto; z-index:3; position:relative;
+    width:88%; flex:0 0 auto; z-index:30; position:relative; pointer-events:auto !important;
     margin:6px 0 0; background:rgba(28,10,22,.88);
     border:3px solid #e8c15a; border-radius:16px; padding:16px; text-align:center; color:#fff;
   }
@@ -695,7 +695,7 @@
   .panel p { margin:0 0 12px; font-size:13px; color:#f3c7de; line-height:1.5; }
   .panel button {
     width:100%; border:0; border-radius:12px; padding:14px;
-    position:relative; z-index:5; touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    position:relative; z-index:40; pointer-events:auto !important; touch-action:manipulation; -webkit-tap-highlight-color:transparent;
     background:linear-gradient(#7ad06a,#2f8a45); color:#083012; font-weight:800; font-size:17px;
     box-shadow:0 4px 0 #1c5a28;
   }
@@ -866,10 +866,10 @@
     <div class="panel">
       <div id="medal" class="hide"><b></b><span></span></div>
       <p id="coverP">錆びついた巨体が、乾いた砂塵の大地に膝をついた。<br>世界はすでに終わっている。</p>
-      <button id="start" type="button" onclick="showStory(()=>reset(false))">はじめる</button>
-      <button id="how" type="button" onclick="showTut(0)" style="margin-top:8px;background:linear-gradient(#d0b06a,#8a6230);box-shadow:0 4px 0 #5a3818;">遊び方</button>
-      <button id="again" type="button" onclick="startLoop()" style="margin-top:8px;background:linear-gradient(#c9a25a,#7a4a18);box-shadow:0 4px 0 #4a2a10;display:none;">もう一周歩く</button>
-      <button id="cont" type="button" onclick="reset(true)" style="margin-top:8px;background:linear-gradient(#8ec4e8,#2a6a9a);box-shadow:0 4px 0 #1c4a68;">続きから</button>
+      <button id="start" type="button">はじめる</button>
+      <button id="how" type="button" style="margin-top:8px;background:linear-gradient(#d0b06a,#8a6230);box-shadow:0 4px 0 #5a3818;">遊び方</button>
+      <button id="again" type="button" style="margin-top:8px;background:linear-gradient(#c9a25a,#7a4a18);box-shadow:0 4px 0 #4a2a10;display:none;">もう一周歩く</button>
+      <button id="cont" type="button" style="margin-top:8px;background:linear-gradient(#8ec4e8,#2a6a9a);box-shadow:0 4px 0 #1c4a68;">続きから</button>
       <div id="metaLine" style="margin-top:8px;font-size:11px;color:#e8c9a8;"></div>
     </div>
   </div>
@@ -2544,6 +2544,10 @@ function bindTap(el, fn){
   el.addEventListener("pointerup", go);
   el.addEventListener("click", go);
 }
+bindTap(document.getElementById("start"), ()=>showStory(()=>reset(false)));
+bindTap(document.getElementById("how"), ()=>showTut(0));
+bindTap(document.getElementById("cont"), ()=>reset(true));
+bindTap(document.getElementById("again"), ()=>startLoop());
 bindTap(document.getElementById("dbgBtn"), openDebug);
 bindTap(document.getElementById("dbgClose"), ()=>document.getElementById("dbg").classList.add("hide"));
 bindTap(document.getElementById("dbgAll"), ()=>{
