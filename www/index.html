@@ -295,11 +295,15 @@
 
 
   #mini {
-    position:absolute; inset:0; z-index:400;
-    background:rgba(8,4,10,.4);
+    position:absolute; inset:0; z-index:460;
+    background:rgba(8,2,12,.62);
     display:flex; align-items:center; justify-content:center;
     pointer-events:none;
+    transform:translateZ(2px);
+    -webkit-transform:translateZ(2px);
   }
+  body.timing #hand,
+  body.timing .arms { filter:brightness(.42); }
   #mini.hide { display:none !important; pointer-events:none; }
   #mini:not(.hide) .minibox, #mini:not(.hide) #miniTap { pointer-events:auto; }
   .minibox { width:82%; background:rgba(28,12,20,.94); border:3px solid #e8c15a; border-radius:16px; padding:14px; text-align:center; color:#fff8e8; }
@@ -1774,6 +1778,7 @@ function runMini(job, done){
   if(txt) txt.textContent = "緑の帯でタッチ（目押し）";
   box.classList.remove("hide");
   box.style.display = "flex";
+  document.body.classList.add("timing");
   let x=8, dir=1, stop=false;
   const tmr=setInterval(()=>{
     if(stop) return;
@@ -1787,6 +1792,7 @@ function runMini(job, done){
     stop=true; clearInterval(tmr); clearTimeout(auto);
     box.classList.add("hide");
     box.style.display = "";
+    document.body.classList.remove("timing");
     const good = x>=56 && x<=76;
     const ok = x>=48 && x<=84;
     once(good?8: ok?4:0);
