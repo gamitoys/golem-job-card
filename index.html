@@ -304,6 +304,16 @@
   #miniMark { position:absolute; left:0; top:0; bottom:0; width:8px; background:#ffe9a8; }
   #miniTap { width:100%; padding:12px; border:0; border-radius:12px; font-weight:800; background:linear-gradient(#7ad06a,#2f8a45); color:#083012; font-size:16px; }
 
+  #dbgBtn {
+    position:absolute; right:58px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index:40;
+    border:0; border-radius:10px; padding:6px 10px;
+    background:rgba(20,8,14,.72); color:#7ad06a; font-weight:800; font-size:12px;
+  }
+  #dbg { position:absolute; inset:0; z-index:260; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; }
+  #dbg.hide { display:none; }
+  #dbg .tutbox { max-height:78%; overflow:auto; }
+  #dbg .drow { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; }
+  #dbg .drow button { flex:1 1 46%; margin:0; font-size:13px; padding:9px 6px; }
   #cfgBtn {
     position:absolute; right:8px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index:40;
     border:0; border-radius:10px; padding:6px 10px;
@@ -590,7 +600,8 @@
   #titleLogo {
     width:88%; max-width:440px; height:auto; display:block; margin:0 auto;
     filter:drop-shadow(0 4px 10px rgba(0,0,0,.55));
-    pointer-events:none;
+    pointer-events:auto;
+    cursor:pointer;
   }
   #titleLogo.hide { display:none !important; }
   .titlepack h1, #coverTitle {
@@ -724,6 +735,26 @@
       <div id="jkYou" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div>
       <button id="jkGo" style="margin-top:8px;">この札を出す</button>
       <button id="jkSkip" style="margin-top:8px;background:linear-gradient(#d0b06a,#8a6230);color:#fff;">やめる</button>
+    </div>
+  </div>
+  <button id="dbgBtn" class="hide" type="button">DBG</button>
+  <div id="dbg" class="hide">
+    <div class="tutbox">
+      <h2>デバッグ</h2>
+      <p style="font-size:12px;color:#c9b08a;">テスト用。販売版では出ません。</p>
+      <div class="drow">
+        <button type="button" id="dbgAll">全職業解放</button>
+        <button type="button" id="dbgFill">HP/MP/緑 満タン</button>
+        <button type="button" id="dbgBag">かけら+10 傷薬+3</button>
+        <button type="button" id="dbgS1">1丘へ</button>
+        <button type="button" id="dbgS2">2丘へ</button>
+        <button type="button" id="dbgS3">3丘へ</button>
+        <button type="button" id="dbgS4">4丘へ</button>
+        <button type="button" id="dbgBoss">ラスボス</button>
+        <button type="button" id="dbgWin">頂上の緑</button>
+        <button type="button" id="dbgLose">ゲームオーバー</button>
+      </div>
+      <button id="dbgClose" type="button" style="margin-top:10px;background:linear-gradient(#d0b06a,#8a6230);color:#fff;">閉じる</button>
     </div>
   </div>
   <div id="cfg" class="hide">
@@ -2300,6 +2331,94 @@ document.getElementById("start").onclick = ()=>{
   showStory(()=>reset(false));
 };
 document.getElementById("cont").onclick = ()=>reset(true);
+
+let titleTaps=0, titleTapAt=0;
+function bumpDebug(e){
+  try{ if(e) e.stopPropagation(); }catch(err){}
+  const now=Date.now();
+  if(now-titleTapAt>2800) titleTaps=0;
+  titleTapAt=now;
+  titleTaps++;
+  if(titleTaps>=7){
+    titleTaps=0;
+    try{ sessionStorage.setItem("golem-dbg","1"); }catch(err){}
+    openDebug();
+  }
+}
+function openDebug(){
+  const b=document.getElementById("dbgBtn");
+  if(b) b.classList.remove("hide");
+  document.getElementById("dbg").classList.remove("hide");
+}
+function dbgEnter(){
+  document.getElementById("dbg").classList.add("hide");
+  const cover=document.getElementById("cover");
+  cover.classList.remove("win");
+  cover.classList.add("hide");
+  ["tut","story","jk","shop","announce","mini"].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.classList.add("hide");
+  });
+  S.busy=false; S.acting=false;
+}
+function dbgStage(n){
+  dbgEnter();
+  S.stage=n; PATH=makePath(n);
+  S.pos=0; S.cleared=new Set([0]); S.mobs=[];
+  S.finalBoss=false; S.finalDown=false;
+  S.php=Math.max(S.php,80); S.mp=Math.max(S.mp,50);
+  document.getElementById("foes").innerHTML="";
+  applyStageSkin(); buildBoard(); placePawn(); bars();
+  setMode("move");
+  log("DEBUG "+n+"丘");
+  hint("サイコロを押して進む");
+}
+document.getElementById("titleLogo").addEventListener("click", bumpDebug);
+const coverTitleEl=document.getElementById("coverTitle");
+if(coverTitleEl) coverTitleEl.addEventListener("click", bumpDebug);
+document.getElementById("dbgBtn").onclick = openDebug;
+document.getElementById("dbgClose").onclick = ()=>document.getElementById("dbg").classList.add("hide");
+document.getElementById("dbgAll").onclick = ()=>{
+  JOBS.forEach(j=>S.unlocked.add(j.id));
+  log("全職業を解放した");
+  renderHand();
+};
+document.getElementById("dbgFill").onclick = ()=>{
+  S.php=100; S.mp=100; S.green=100; bars(); log("満タンにした");
+};
+document.getElementById("dbgBag").onclick = ()=>{
+  S.shards=(S.shards||0)+10;
+  S.bagHeal=(S.bagHeal||0)+3;
+  S.bagMana=(S.bagMana||0)+3;
+  bars(); log("かけらと傷薬を足した");
+};
+document.getElementById("dbgS1").onclick = ()=>dbgStage(1);
+document.getElementById("dbgS2").onclick = ()=>dbgStage(2);
+document.getElementById("dbgS3").onclick = ()=>dbgStage(3);
+document.getElementById("dbgS4").onclick = ()=>dbgStage(4);
+document.getElementById("dbgBoss").onclick = ()=>{
+  dbgEnter();
+  S.stage=3; PATH=makePath(3);
+  S.pos=PATH.length-1; S.cleared=new Set([0]);
+  S.finalDown=false; S.finalBoss=false;
+  S.php=Math.max(S.php,80); S.mp=Math.max(S.mp,60);
+  applyStageSkin(); buildBoard(); placePawn();
+  spawnFoes(true);
+  setMode("fight");
+  bars();
+  log("DEBUG ラスボス");
+};
+document.getElementById("dbgWin").onclick = ()=>{
+  document.getElementById("dbg").classList.add("hide");
+  JOBS.forEach(j=>S.unlocked.add(j.id));
+  S.green=Math.max(S.green||0, 96);
+  S.shards=Math.max(S.shards||0, 12);
+  finishEnd(true);
+};
+document.getElementById("dbgLose").onclick = ()=>{
+  document.getElementById("dbg").classList.add("hide");
+  S.php=0; finishEnd(false);
+};
+try{ if(sessionStorage.getItem("golem-dbg")) document.getElementById("dbgBtn").classList.remove("hide"); }catch(e){}
 
 document.getElementById("diceTap").onclick = roll;
 document.getElementById("rest").onclick = restTurn;
