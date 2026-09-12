@@ -953,6 +953,20 @@ function loadMeta(){
 function saveMeta(m){
   localStorage.setItem(META_KEY, JSON.stringify(m));
 }
+function saveHillRestart(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      stage:S.stage||1, pos:0, php:100, mp:60,
+      green:S.green||0, shards:S.shards||0,
+      bagHeal:S.bagHeal|0, bagMana:S.bagMana|0,
+      unlocked:[...S.unlocked],
+      cleared:[0],
+      deck:[], discard:[], hand:[], uses:{},
+      mode:"move", loop:S.loop||0,
+      finalDown:false, mobs:[], finalBoss:false
+    }));
+  }catch(e){}
+}
 function saveRun(){
   const dump = {
     stage:S.stage, pos:S.pos, php:S.php, mp:S.mp, green:S.green, shards:S.shards, bagHeal:S.bagHeal|0, bagMana:S.bagMana|0,
@@ -1937,12 +1951,13 @@ function finishEnd(win){
   if(order[r.id]>(order[meta.rank]||0)) meta.rank=r.id;
   if(win) meta.cleared = 3;
   saveMeta(meta);
-  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  if(win){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+  else { saveHillRestart(); }
   const rk = rankOf(S.green||0);
   const title = win ? "頂上の緑" : "ゴーレムはチカラ尽きた";
   const body = win
     ? `緑化 ${S.green}%　思い出 ${S.unlocked.size}　かけら ${S.shards}。<br>ランク ${rk.name}　${rk.sub}`
-    : "HPが尽きた。土の体が崩れ、記憶が途切れる。<br>続きから、または最初から歩き直せ。";
+    : "HPが尽きた。土の体が崩れ、記憶が途切れる。<br>続きからは、死んだ丘の入り口に戻る。";
   const md=document.getElementById("medal");
   if(md){
     if(win){ md.className="medal "+rk.id; md.innerHTML="<b>"+rk.name+"</b><span>"+rk.sub+"</span>"; }
@@ -1971,7 +1986,15 @@ function finishEnd(win){
   document.getElementById("start").textContent = "最初から";
   const ag=document.getElementById("again");
   if(ag) ag.style.display = win ? "block" : "none";
+  const how=document.getElementById("how");
+  if(how) how.style.display = "none";
+  const c=document.getElementById("cont");
+  if(c){
+    c.textContent = win ? "続きから" : "この丘の初めから";
+    c.style.display = (!win && hasSave()) ? "block" : "none";
+  }
   refreshMeta();
+  if(c && !win) { c.textContent = "この丘の初めから"; c.style.display = "block"; }
 }
 
 function applyDump(d){
@@ -2050,7 +2073,13 @@ function refreshMeta(){
   const el = document.getElementById("metaLine");
   if(el) el.textContent = `最高緑化 ${m.best||0}%　踏破 ${m.cleared||0}/3`;
   const c = document.getElementById("cont");
-  if(c) c.style.display = hasSave() ? "block" : "none";
+  const cover=document.getElementById("cover");
+  const losing = cover && !cover.classList.contains("hide") && !cover.classList.contains("win")
+    && (document.getElementById("coverTitle")||{}).textContent==="ゴーレムはチカラ尽きた";
+  if(c){
+    if(losing){ c.textContent="この丘の初めから"; c.style.display="block"; }
+    else { if(c.textContent==="この丘の初めから") c.textContent="続きから"; c.style.display = hasSave() ? "block" : "none"; }
+  }
 }
 
 document.getElementById("cover").addEventListener("touchstart", startBgm, {passive:true});
