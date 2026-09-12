@@ -195,8 +195,13 @@
 
   #pawn {
     position:absolute; z-index:8; width:78px; height:78px; margin:-70px 0 0 -39px;
-    transition:left .32s ease, top .32s ease;
+    transition:left .32s ease, top .32s ease, filter .4s ease, opacity .4s ease;
     filter:drop-shadow(0 3px 2px rgba(0,0,0,.45));
+  }
+  body.fight #pawn {
+    z-index:4;
+    filter: brightness(.38) saturate(.75) drop-shadow(0 3px 2px rgba(0,0,0,.45));
+    opacity:.55;
   }
   #pawn .spr {
     width:96px; height:86px;
