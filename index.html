@@ -770,12 +770,12 @@ const JOBS = [
   { id:"memH",    name:"勇者の記憶", cls:"hero",    kind:"mem", role:"止め", start:false, mp:6, dmg:18, heal:0,  green:5,  armor:0, uses:99, sk:"HP半分以下ならダメージ増" },
   { id:"memM",    name:"魔法使いの記憶", cls:"mage", kind:"mem", role:"緑化", start:false, mp:7, dmg:10, heal:0,  green:16, armor:0, uses:99, sk:"弱め全体。緑が大きく増える" },
   { id:"memB",    name:"パン屋の記憶", cls:"baker",  kind:"mem", role:"回復", start:false, mp:5, dmg:0,  heal:30, green:5,  armor:0, uses:99, sk:"大きく回復。MPも少し戻る" },
-  { id:"memA",    name:"薬剤師の記憶", cls:"alchemist",kind:"mem", role:"毒", start:false, mp:5, dmg:6,  heal:12, green:6,  armor:0, uses:99, sk:"回復＋毒。次ターンも削る" },
+  { id:"memA",    name:"薬剤師の記憶", cls:"alchemist",kind:"mem", role:"回復", start:false, mp:5, dmg:6,  heal:28, green:6,  armor:0, uses:99, sk:"体力を大きく戻す。毒で次ターンも削る" },
   { id:"memY",    name:"弓使いの記憶", cls:"archer",  kind:"mem", role:"遠攻", start:false, mp:5, dmg:18, heal:0,  green:4,  armor:0, uses:99, sk:"満タンの敵に先制で強い" },
   { id:"memK",    name:"鍛冶屋の記憶", cls:"smith",   kind:"mem", role:"鍛え", start:false, mp:5, dmg:10, heal:0,  green:3,  armor:1, uses:99, sk:"装甲を削り、次の攻撃を強化" },
   { id:"memG",    name:"庭師の記憶", cls:"gardener", kind:"mem", role:"緑化", start:false, mp:5, dmg:8,  heal:8,  green:20, armor:0, uses:99, sk:"大きく緑化。キノコに少し強い" },
   { id:"memS",    name:"商人の記憶", cls:"merchant",kind:"mem", role:"交易", start:false, mp:4, dmg:6,  heal:6,  green:4,  armor:0, uses:99, sk:"かけら◆を2つ得る。少し削る" },
-  { id:"memP",    name:"僧侶の記憶", cls:"priest",  kind:"mem", role:"浄化", start:false, mp:6, dmg:0,  heal:24, green:8,  armor:0, uses:99, sk:"大きく回復。毒を消す" }
+  { id:"memP",    name:"僧侶の記憶", cls:"priest",  kind:"mem", role:"回復", start:false, mp:5, dmg:0,  heal:40, green:8,  armor:0, uses:99, sk:"体力を大きく戻す。毒も消す" }
 ];
 
 const STAGES = [
@@ -1643,7 +1643,10 @@ function finishPlay(job, bonus){
     const extra = (job.id==="memA" && tgt.kind==="bug") ? 10 : 0;
     hit(tgt, Math.max(3, job.dmg - resist + extra));
   }
-  S.php=Math.min(100,S.php+job.heal);
+  if(job.heal>0){
+    S.php=Math.min(100,S.php+job.heal);
+    popCenter("♥+"+job.heal);
+  }
   S.green=Math.min(100,S.green+job.green);
   log(job.name+"　"+job.sk);
   bars(); drawFoes(); renderHand();
