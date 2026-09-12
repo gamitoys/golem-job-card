@@ -69,6 +69,19 @@
     display:flex; align-items:center; gap:6px;
   }
   .pill { background:rgba(0,0,0,.5); border-radius:16px; padding:3px 8px; font-size:11px; display:flex; align-items:center; gap:5px; color:#fff; }
+  #bagbar {
+    position:absolute; z-index:22; pointer-events:auto;
+    top: calc(env(safe-area-inset-top, 0px) + 46px);
+    left:10px; display:flex; gap:6px;
+  }
+  #bagbar button {
+    border:0; border-radius:12px; padding:5px 9px;
+    background:rgba(20,8,16,.78); color:#ffe9a8;
+    font-weight:800; font-size:11px;
+    box-shadow:0 2px 0 rgba(0,0,0,.35);
+  }
+  #bagbar button.off { opacity:.38; }
+  #bagbar b { color:#fff; }
   .bar { width:64px; height:8px; background:#3a2030; border-radius:5px; overflow:hidden; }
   .bar i { display:block; height:100%; }
   #php { width:100%; background:linear-gradient(#ff6b6b,#c0392b); }
@@ -635,6 +648,10 @@
     <div class="pill" id="floorpill">I</div>
     <div class="pill" id="shardpill">◆0</div>
   </div>
+  <div id="bagbar">
+    <button type="button" id="bagHealBtn">傷薬 ×<b id="bagHealN">0</b></button>
+    <button type="button" id="bagManaBtn">水瓶 ×<b id="bagManaN">0</b></button>
+  </div>
   <div id="board"></div>
   <div id="pawn"><div class="spr"></div></div>
   <div id="ally"><div class="spr"></div></div>
@@ -668,8 +685,8 @@
       <p id="shopTalk">「いらっしゃい。黄色い品を押すと買えるよ」</p>
       <p id="shopHave" class="wallet"></p>
       <p class="shop-how">黄色い品＝買える　／　灰色＝今は買えない（押すと理由）</p>
-      <button type="button" id="shopHeal"><b>傷薬</b><span>HPを28回復する</span><em>買う ◆2</em></button>
-      <button type="button" id="shopMana"><b>水瓶</b><span>MPを28回復する</span><em>買う ◆2</em></button>
+      <button type="button" id="shopHeal"><b>傷薬</b><span>袋に入れて、あとで体力回復</span><em>買う ◆2</em></button>
+      <button type="button" id="shopMana"><b>水瓶</b><span>袋に入れて、あとでMP回復</span><em>買う ◆2</em></button>
       <button type="button" id="shopGreen"><b>苗木</b><span>緑を18増やす（クリアの銅銀金）</span><em>買う ◆3</em></button>
       <button type="button" id="shopJob"><b>記憶の札</b><span>新しい職業カードを1枚もらう</span><em>買う ◆5</em></button>
       <p class="shop-tip">買わなくても大丈夫。下のボタンで店を出る</p>
@@ -831,7 +848,7 @@ const SAVE_KEY = "golem-job-cards-v1";
 const META_KEY = "golem-job-meta-v1";
 
 const S = {
-  stage:1, pos:0, php:100, mp:50, green:0, shards:0,
+  stage:1, pos:0, php:100, mp:50, green:0, shards:0, bagHeal:0, bagMana:0,
   busy:false, acting:false, mode:"move",
   used:new Set(), mobs:[], cleared:new Set(), unlocked:new Set(),
   uses:{}, deck:[], discard:[], hand:[]
@@ -873,7 +890,7 @@ function saveMeta(m){
 }
 function saveRun(){
   const dump = {
-    stage:S.stage, pos:S.pos, php:S.php, mp:S.mp, green:S.green, shards:S.shards,
+    stage:S.stage, pos:S.pos, php:S.php, mp:S.mp, green:S.green, shards:S.shards, bagHeal:S.bagHeal|0, bagMana:S.bagMana|0,
     unlocked:[...S.unlocked], cleared:[...S.cleared],
     deck:S.deck, discard:S.discard, hand:S.hand, uses:S.uses, mode:S.mode, loop:S.loop||0,
     finalDown:!!S.finalDown, mobs:S.mobs||[], finalBoss:!!S.finalBoss
@@ -1001,6 +1018,7 @@ function bars(){
   const st = STAGES[S.stage-1];
   document.getElementById("floorpill").textContent = st.roman;
   document.getElementById("shardpill").textContent = "◆"+S.shards;
+  refreshBag();
   const veil = document.getElementById("veil");
   if(veil) veil.style.setProperty("--v", (S.green/160).toFixed(2));
 }
@@ -1344,6 +1362,46 @@ function land(){
   }
   bars(); S.busy=false; setMode("move");
 }
+function refreshBag(){
+  const hb=document.getElementById("bagHealBtn");
+  const mb=document.getElementById("bagManaBtn");
+  const hn=document.getElementById("bagHealN");
+  const mn=document.getElementById("bagManaN");
+  if(hn) hn.textContent = S.bagHeal|0;
+  if(mn) mn.textContent = S.bagMana|0;
+  if(hb) hb.classList.toggle("off", !(S.bagHeal>0));
+  if(mb) mb.classList.toggle("off", !(S.bagMana>0));
+}
+function useBag(kind){
+  if(S.acting) return;
+  if(S.busy && S.mode!=="fight") return;
+  if(kind==="heal"){
+    if(!(S.bagHeal>0)){ log("傷薬を持っていない"); return; }
+    if(S.php>=100){ log("もう傷はない"); return; }
+    S.bagHeal--;
+    const a=Math.round(S.php);
+    S.php=Math.min(100,S.php+28);
+    log("傷薬を使った　HP "+a+" → "+Math.round(S.php)+"　残り"+S.bagHeal);
+    popCenter("♥+28");
+    beep(520,0.08);
+  } else {
+    if(!(S.bagMana>0)){ log("水瓶を持っていない"); return; }
+    if(S.mp>=100){ log("MPは満タン"); return; }
+    S.bagMana--;
+    const a=Math.round(S.mp);
+    S.mp=Math.min(100,S.mp+28);
+    log("水瓶を使った　MP "+a+" → "+Math.round(S.mp)+"　残り"+S.bagMana);
+    popCenter("💧+28");
+    beep(480,0.08);
+  }
+  bars();
+  try{ shopStock(); }catch(e){}
+  try{ saveRun(); }catch(e){}
+  if(S.mode==="fight" && living().length){
+    S.acting=true; refreshHint();
+    setTimeout(enemy, 480);
+  }
+}
 function shopStock(){
   const have=S.shards|0;
   const hp=Math.round(S.php), mp=Math.round(S.mp), gr=Math.round(S.green);
@@ -1351,8 +1409,8 @@ function shopStock(){
   if(el) el.innerHTML = "所持かけら <b>◆"+have+"</b><br>HP "+hp+"　MP "+mp+"　緑 "+gr;
   const allJob = JOBS.every(j=>j.start || S.unlocked.has(j.id));
   const goods=[
-    ["shopHeal",2, "HP "+hp+" → "+Math.min(100,hp+28)+"　（28回復）", hp>=100?"もう満タン":""],
-    ["shopMana",2, "MP "+mp+" → "+Math.min(100,mp+28)+"　（28回復）", mp>=100?"もう満タン":""],
+    ["shopHeal",2, "袋に入れる（所持 "+(S.bagHeal|0)+"/5）。画面上の傷薬で使う", (S.bagHeal|0)>=5?"袋がいっぱい":""],
+    ["shopMana",2, "袋に入れる（所持 "+(S.bagMana|0)+"/5）。画面上の水瓶で使う", (S.bagMana|0)>=5?"袋がいっぱい":""],
     ["shopGreen",3, "緑 "+gr+" → "+Math.min(100,gr+18)+"　（クリア評価）", gr>=100?"もう満タン":""],
     ["shopJob",5, "まだ持っていない職業カードを1枚もらう", allJob?"全部持っている":""]
   ];
@@ -1380,15 +1438,15 @@ function buyShop(k){
   if(k==="pass"){ log("路店を出た"); closeShop(); return; }
   const have=S.shards|0;
   if(k==="heal"){
-    if(S.php>=100){ say("もう傷はないよ。別の品は？"); return; }
+    if((S.bagHeal|0)>=5){ say("傷薬は5つまでだよ"); return; }
     if(have<2){ say("傷薬はかけら◆2。いま ◆"+have+"。敵を倒すと集まるよ"); return; }
-    const a=Math.round(S.php); S.shards-=2; S.php=Math.min(100,S.php+28);
-    log("傷薬を買った"); say("傷薬を買った！ HP "+a+" → "+Math.round(S.php)+"　残り ◆"+(have-2));
+    S.shards-=2; S.bagHeal=(S.bagHeal|0)+1;
+    log("傷薬を袋に入れた"); say("傷薬を袋に入れた（"+S.bagHeal+"個）。画面上の「傷薬」を押すと回復できる　残り ◆"+(have-2));
   } else if(k==="mana"){
-    if(S.mp>=100){ say("水瓶はいっぱいだよ"); return; }
+    if((S.bagMana|0)>=5){ say("水瓶は5つまでだよ"); return; }
     if(have<2){ say("水瓶はかけら◆2。いま ◆"+have+"。敵を倒すと集まるよ"); return; }
-    const a=Math.round(S.mp); S.shards-=2; S.mp=Math.min(100,S.mp+28);
-    log("水瓶を買った"); say("水瓶を買った！ MP "+a+" → "+Math.round(S.mp)+"　残り ◆"+(have-2));
+    S.shards-=2; S.bagMana=(S.bagMana|0)+1;
+    log("水瓶を袋に入れた"); say("水瓶を袋に入れた（"+S.bagMana+"個）。画面上の「水瓶」を押すとMPが戻る　残り ◆"+(have-2));
   } else if(k==="green"){
     if(S.green>=100){ say("もう緑は満ちているよ"); return; }
     if(have<3){ say("苗木はかけら◆3。いま ◆"+have+"。敵を倒すと集まるよ"); return; }
@@ -1838,7 +1896,7 @@ function applyDump(d){
   PATH = makePath(d.stage||1);
   Object.assign(S,{
     stage:d.stage||1, pos:d.pos||0, php:d.php??100, mp:d.mp??50,
-    green:d.green||0, shards:d.shards||0, busy:false, acting:false, mode:"move", loop:d.loop||0,
+    green:d.green||0, shards:d.shards||0, bagHeal:d.bagHeal|0, bagMana:d.bagMana|0, busy:false, acting:false, mode:"move", loop:d.loop||0,
     finalDown:!!d.finalDown, finalBoss:false
   });
   S.unlocked = new Set(d.unlocked||[]);
@@ -1868,7 +1926,7 @@ function reset(fromSave){
     if(d) applyDump(d);
     else return reset(false);
   } else {
-    Object.assign(S,{stage:1,pos:0,php:100,mp:50,green:0,shards:0,busy:false,acting:false,mode:"move",guard:0,poison:0,loop:0,finalBoss:false,finalDown:false});
+    Object.assign(S,{stage:1,pos:0,php:100,mp:50,green:0,shards:0,bagHeal:0,bagMana:0,busy:false,acting:false,mode:"move",guard:0,poison:0,loop:0,finalBoss:false,finalDown:false});
     S.used.clear(); S.unlocked=new Set(); S.uses={}; S.cleared=new Set([0]); S.mobs=[];
     S.deck=[]; S.discard=[]; S.hand=[];
     PATH = makePath(1);
@@ -2127,6 +2185,8 @@ function advanceTut(){
 
 document.getElementById("jkGo").onclick=()=>{ if(JKST&&JKST.sel!=null) jkPlay(JKST.sel); };
 document.getElementById("jkSkip").onclick = ()=>{ document.getElementById("jk").classList.add("hide"); S.php=Math.min(100,S.php+12); log("泉で休んだ"); bars(); S.busy=false; setMode("move"); };
+document.getElementById("bagHealBtn").onclick=()=>useBag("heal");
+document.getElementById("bagManaBtn").onclick=()=>useBag("mana");
 document.getElementById("shopHeal").onclick=()=>buyShop("heal");
 document.getElementById("shopMana").onclick=()=>buyShop("mana");
 document.getElementById("shopGreen").onclick=()=>buyShop("green");
