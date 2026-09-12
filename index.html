@@ -2052,27 +2052,55 @@ function renderJk(msg){
   const box=document.getElementById("jkYou");
   box.innerHTML="";
   st.you.forEach((id,i)=>{
-    const el=jkCardEl(id, ()=>{ st.sel=i; renderJk("上にスワイプして出す"); });
+    const el=jkCardEl(id);
     if(i===st.sel) el.style.outline="3px solid #ffe566";
-    let y0=null, drag=false;
-    el.addEventListener("touchstart",e=>{ y0=e.changedTouches[0].clientY; drag=true; },{passive:true});
-    el.addEventListener("touchmove",e=>{
-      if(!drag||y0==null) return;
-      const dy=Math.min(0, e.changedTouches[0].clientY-y0);
-      el.style.transform="translateY("+dy+"px)";
-    },{passive:true});
-    el.addEventListener("touchend",e=>{
-      if(!drag) return; drag=false;
-      const dy=e.changedTouches[0].clientY-y0;
-      el.style.transform="none";
-      if(dy < -40) jkPlay(i);
+    el.style.touchAction="none";
+    el.style.webkitUserSelect="none";
+    el.style.userSelect="none";
+    let y0=null, sent=false;
+    const pick=()=>{
+      st.sel=i;
+      box.querySelectorAll(".card").forEach(c=>c.style.outline="3px solid transparent");
+      el.style.outline="3px solid #ffe566";
+    };
+    const go=(e)=>{
+      try{ e.preventDefault(); e.stopPropagation(); }catch(err){}
+      if(sent) return;
+      sent=true;
+      el.style.transform="";
+      pick();
+      jkPlay(i);
+    };
+    el.addEventListener("pointerdown", e=>{
+      if(st.lock && Date.now()-(st.lockAt||0)<1600) return;
+      pick();
+      y0=e.clientY; sent=false;
+      try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    }, {passive:false});
+    el.addEventListener("pointermove", e=>{
+      if(y0==null) return;
+      try{ e.preventDefault(); }catch(err){}
+      const dy=e.clientY-y0;
+      el.style.transform="translateY("+Math.min(8, dy)+"px)";
+      if(dy<=-28) go(e);
+    }, {passive:false});
+    el.addEventListener("pointerup", e=>{
+      if(y0==null) return;
+      const dy=e.clientY-y0;
+      if(!sent && dy<=-28) go(e);
+      else el.style.transform="";
       y0=null;
-    },{passive:true});
+    });
+    el.addEventListener("pointercancel", ()=>{ y0=null; el.style.transform=""; });
     box.appendChild(el);
   });
 }
 function jkPlay(i){
-  const st=JKST; if(!st||st.lock) return;
+  const st=JKST; if(!st) return;
+  if(st.lock && Date.now()-(st.lockAt||0)<1600) return;
+  if(i==null || i<0 || i>=st.you.length) i=st.sel|0;
+  if(i<0 || i>=st.you.length) return;
+  st.lock=true; st.lockAt=Date.now();
   if(st.you.length===0||st.foe.length===0){
     st.you.push(jkPick()); st.foe.push(jkPick());
   }
@@ -2094,8 +2122,7 @@ function jkPlay(i){
   mk.style.color = r==="win"?"#7ad06a": r==="lose"?"#e07070":"#5aa8ff";
   box.appendChild(mk);
   setTimeout(()=>mk.remove(), 1400);
-  st.lock=true;
-  const an=JK.find(x=>x.id===a).name, bn=JK.find(x=>x.id===b).name;
+  const an=(JK.find(x=>x.id===a)||{name:"?"}).name, bn=(JK.find(x=>x.id===b)||{name:"?"}).name;
   setTimeout(()=>{
     let why = r==="win" ? an+"は"+bn+"に勝つ。" : r==="lose" ? bn+"は"+an+"に勝つ。" : an+"同士。引き分け。";
     if(a==="knight" && r==="win" && a===b) why="同じ職。騎士の勝ち。";
@@ -2122,7 +2149,7 @@ function jkPlay(i){
       setTimeout(()=>endJanken(win), 4000);
       return;
     }
-    st.lock=false; st.sel=0;
+    st.lock=false; st.lockAt=0; st.sel=0;
     if(st.you.length===0) st.you.push(jkPick());
     if(st.foe.length===0) st.foe.push(jkPick());
     renderJk(msg);
