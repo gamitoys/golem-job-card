@@ -305,20 +305,23 @@
   #miniTap { width:100%; padding:12px; border:0; border-radius:12px; font-weight:800; background:linear-gradient(#7ad06a,#2f8a45); color:#083012; font-size:16px; }
 
   #dbgBtn, #cfgBtn {
-    position:absolute; z-index:90; pointer-events:auto;
-    border:0; border-radius:10px; padding:8px 12px;
-    min-height:36px; font-weight:800; font-size:12px;
+    position:absolute; z-index:280; pointer-events:auto !important;
+    border:0; border-radius:12px; padding:10px 14px;
+    min-width:48px; min-height:44px; font-weight:800; font-size:13px;
+    -webkit-tap-highlight-color:rgba(122,208,106,.35);
+    touch-action:manipulation;
   }
   #dbgBtn {
-    left:8px; top: calc(env(safe-area-inset-top, 0px) + 88px);
-    background:rgba(20,8,14,.82); color:#7ad06a;
+    right:10px; left:auto; top: calc(env(safe-area-inset-top, 0px) + 118px);
+    background:rgba(20,8,14,.9); color:#7ad06a;
+    border:2px solid #4a8a40;
   }
   #cfgBtn {
-    left:64px; top: calc(env(safe-area-inset-top, 0px) + 88px);
-    background:rgba(20,8,14,.82); color:#ffe9a8;
+    left:8px; right:auto; top: calc(env(safe-area-inset-top, 0px) + 118px);
+    background:rgba(20,8,14,.9); color:#ffe9a8;
   }
-  #dbg { position:absolute; inset:0; z-index:500; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; pointer-events:auto; }
-  #dbg.hide { display:none; }
+  #dbg { position:absolute; inset:0; z-index:500; background:rgba(8,4,10,.72); display:flex; align-items:center; justify-content:center; pointer-events:auto; }
+  #dbg.hide { display:none !important; pointer-events:none !important; }
   #dbg .tutbox { max-height:78%; overflow:auto; }
   #dbg .drow { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; }
   #dbg .drow button { flex:1 1 46%; margin:0; font-size:13px; padding:9px 6px; }
@@ -591,7 +594,7 @@
     padding: calc(8px + env(safe-area-inset-top)) 0 calc(8px + env(safe-area-inset-bottom));
     box-sizing:border-box;
   }
-  #cover.hide { display:none; }
+  #cover.hide { display:none !important; pointer-events:none !important; }
   #cover.win {
     background:
       linear-gradient(180deg, rgba(18,40,20,.10), rgba(10,28,16,.50)),
@@ -2383,27 +2386,33 @@ function dbgStage(n){
 document.getElementById("titleLogo").addEventListener("click", bumpDebug);
 const coverTitleEl=document.getElementById("coverTitle");
 if(coverTitleEl) coverTitleEl.addEventListener("click", bumpDebug);
-document.getElementById("dbgBtn").onclick = openDebug;
-document.getElementById("dbgClose").onclick = ()=>document.getElementById("dbg").classList.add("hide");
-document.getElementById("dbgAll").onclick = ()=>{
+function bindTap(el, fn){
+  if(!el) return;
+  const go=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); }catch(err){} fn(e); };
+  el.addEventListener("pointerup", go);
+  el.addEventListener("click", go);
+}
+bindTap(document.getElementById("dbgBtn"), openDebug);
+bindTap(document.getElementById("dbgClose"), ()=>document.getElementById("dbg").classList.add("hide"));
+bindTap(document.getElementById("dbgAll"), ()=>{
   JOBS.forEach(j=>S.unlocked.add(j.id));
   log("全職業を解放した");
   renderHand();
-};
-document.getElementById("dbgFill").onclick = ()=>{
+});
+bindTap(document.getElementById("dbgFill"), ()=>{
   S.php=100; S.mp=100; S.green=100; bars(); log("満タンにした");
-};
-document.getElementById("dbgBag").onclick = ()=>{
+});
+bindTap(document.getElementById("dbgBag"), ()=>{
   S.shards=(S.shards||0)+10;
   S.bagHeal=(S.bagHeal||0)+3;
   S.bagMana=(S.bagMana||0)+3;
   bars(); log("かけらと傷薬を足した");
-};
-document.getElementById("dbgS1").onclick = ()=>dbgStage(1);
-document.getElementById("dbgS2").onclick = ()=>dbgStage(2);
-document.getElementById("dbgS3").onclick = ()=>dbgStage(3);
-document.getElementById("dbgS4").onclick = ()=>dbgStage(4);
-document.getElementById("dbgBoss").onclick = ()=>{
+});
+bindTap(document.getElementById("dbgS1"), ()=>dbgStage(1));
+bindTap(document.getElementById("dbgS2"), ()=>dbgStage(2));
+bindTap(document.getElementById("dbgS3"), ()=>dbgStage(3));
+bindTap(document.getElementById("dbgS4"), ()=>dbgStage(4));
+bindTap(document.getElementById("dbgBoss"), ()=>{
   dbgEnter();
   S.stage=3; PATH=makePath(3);
   S.pos=PATH.length-1; S.cleared=new Set([0]);
@@ -2414,18 +2423,18 @@ document.getElementById("dbgBoss").onclick = ()=>{
   setMode("fight");
   bars();
   log("DEBUG ラスボス");
-};
-document.getElementById("dbgWin").onclick = ()=>{
+});
+bindTap(document.getElementById("dbgWin"), ()=>{
   document.getElementById("dbg").classList.add("hide");
   JOBS.forEach(j=>S.unlocked.add(j.id));
   S.green=Math.max(S.green||0, 96);
   S.shards=Math.max(S.shards||0, 12);
   finishEnd(true);
-};
-document.getElementById("dbgLose").onclick = ()=>{
+});
+bindTap(document.getElementById("dbgLose"), ()=>{
   document.getElementById("dbg").classList.add("hide");
   S.php=0; finishEnd(false);
-};
+});
 try{ if(sessionStorage.getItem("golem-dbg")) document.getElementById("dbgBtn").classList.remove("hide"); }catch(e){}
 
 document.getElementById("diceTap").onclick = roll;
