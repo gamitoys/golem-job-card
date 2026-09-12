@@ -304,21 +304,25 @@
   #miniMark { position:absolute; left:0; top:0; bottom:0; width:8px; background:#ffe9a8; }
   #miniTap { width:100%; padding:12px; border:0; border-radius:12px; font-weight:800; background:linear-gradient(#7ad06a,#2f8a45); color:#083012; font-size:16px; }
 
-  #dbgBtn {
-    position:absolute; right:58px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index:40;
-    border:0; border-radius:10px; padding:6px 10px;
-    background:rgba(20,8,14,.72); color:#7ad06a; font-weight:800; font-size:12px;
+  #dbgBtn, #cfgBtn {
+    position:absolute; z-index:90; pointer-events:auto;
+    border:0; border-radius:10px; padding:8px 12px;
+    min-height:36px; font-weight:800; font-size:12px;
   }
-  #dbg { position:absolute; inset:0; z-index:260; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; }
+  #dbgBtn {
+    left:8px; top: calc(env(safe-area-inset-top, 0px) + 88px);
+    background:rgba(20,8,14,.82); color:#7ad06a;
+  }
+  #cfgBtn {
+    left:64px; top: calc(env(safe-area-inset-top, 0px) + 88px);
+    background:rgba(20,8,14,.82); color:#ffe9a8;
+  }
+  #dbg { position:absolute; inset:0; z-index:500; background:rgba(8,4,10,.62); display:flex; align-items:center; justify-content:center; pointer-events:auto; }
   #dbg.hide { display:none; }
   #dbg .tutbox { max-height:78%; overflow:auto; }
   #dbg .drow { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; }
   #dbg .drow button { flex:1 1 46%; margin:0; font-size:13px; padding:9px 6px; }
-  #cfgBtn {
-    position:absolute; right:8px; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index:40;
-    border:0; border-radius:10px; padding:6px 10px;
-    background:rgba(20,8,14,.72); color:#ffe9a8; font-weight:800; font-size:12px;
-  }
+
   @keyframes jkshake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   @keyframes jkpop { 0%{transform:scale(.2);opacity:0} 40%{transform:scale(1.2);opacity:1} 100%{transform:scale(1);opacity:0} }
   .jkmark { position:absolute; left:50%; top:40%; transform:translate(-50%,-50%); font-size:72px; font-weight:800; z-index:3; pointer-events:none; animation:jkpop .8s ease forwards; text-shadow:0 4px 0 #000; }
@@ -738,6 +742,7 @@
     </div>
   </div>
   <button id="dbgBtn" class="hide" type="button">DBG</button>
+  <button id="cfgBtn" type="button">設定</button>
   <div id="dbg" class="hide">
     <div class="tutbox">
       <h2>デバッグ</h2>
@@ -2301,11 +2306,14 @@ document.getElementById("zoomBack").onclick=closeZoom;
 })();
 document.getElementById("tutNext").onclick = advanceTut;
 document.getElementById("how").onclick = ()=>showTut(0);
-document.getElementById("cfgBtn").onclick = ()=>{
-  document.getElementById("cfgBgm").checked = window.__bgmOn!==false;
-  document.getElementById("cfgSfx").checked = window.__sfxOn!==false;
-  document.getElementById("cfg").classList.remove("hide");
-};
+(function(){
+  const cfgB=document.getElementById("cfgBtn");
+  if(cfgB) cfgB.onclick = ()=>{
+    document.getElementById("cfgBgm").checked = window.__bgmOn!==false;
+    document.getElementById("cfgSfx").checked = window.__sfxOn!==false;
+    document.getElementById("cfg").classList.remove("hide");
+  };
+})();
 document.getElementById("cfgClose").onclick = ()=>document.getElementById("cfg").classList.add("hide");
 document.getElementById("cfgBgm").onchange = (e)=>{
   window.__bgmOn = e.target.checked;
