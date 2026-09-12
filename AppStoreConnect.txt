@@ -1,0 +1,143 @@
+Golem job card — App Store Connect 記入用
+Gami Toys Works　2026
+価格：¥370（日本）／他国は同等ティア（例 $2.99）
+
+
+■ アプリ情報
+名前（30文字以内）
+Golem job card
+
+サブタイトル（30文字以内）
+記憶のカードで、世界を緑に
+
+バンドルID（Xcode / Identifiers）
+com.gamitoys.golemjobcard
+
+SKU
+golemjobcard
+
+バージョン
+1.0.0
+
+ビルド番号
+1
+
+プライマリ言語
+日本語
+
+カテゴリ
+Games — Role Playing
+追加カテゴリ：Games — Card
+
+対象
+iPhone のみ（iPad は出さない）
+向き：縦画面のみ
+最低OS：iOS 15.0 以上（WKWebView なら 13+ でも可。前回と同じでよい）
+
+著作権
+2026 Gami Toys Works
+
+
+■ プロモーションテキスト（170文字以内・審査なしで後から変更可）
+記憶を失った世界を、職業カードで緑に還す。サイコロで丘を進み、手札をスワイプして戦う、ゴーレムのカードRPG。
+
+
+■ 説明文（日本語）
+錆びついたゴーレムが、失われた「職業の記憶」を拾い集め、荒れた大地を緑に還していくカードRPGです。
+
+【遊び】
+・サイコロで球状の丘をすごろく進む
+・マスに止まると敵とのカードバトル
+・手札を上にスワイプして職業の技を出す
+・泉で休み、路店でかけらを使い、職の相性じゃんけんでも遊べる
+・3つの丘の先で、最後のゴーレムと対峙する
+・クリア後は芽吹きの丘。彷徨う魂を供養できる
+
+【職業の記憶】
+戦士・盗賊・勇者・魔法使い・僧侶・弓使い・鍛冶屋・庭師・商人・パン屋・薬剤師など。
+敵ごとに得意な職があり、思い出してデッキが育つ。
+
+【操作】
+縦画面のタッチ操作のみ。チュートリアル付き。途中セーブあり。やられたら、その丘の入り口から再開できます。
+
+制作：Gami Toys Works
+
+
+■ Description (English, 任意・海外販売するなら)
+A rusted golem walks a ruined world, gathering Job Memory cards to bring the land back to green.
+
+Roll the dice across miniature hills, swipe cards to fight, rest at springs, and duel with job-affinity janken. Three hills lead to a final golem. After the ending, a fourth hill of new green lets you lay wandering souls to rest.
+
+Portrait, one-touch play. Save and continue from the start of the hill if you fall.
+
+Made by Gami Toys Works.
+
+
+■ キーワード（カンマ区切り、スペースなし、100文字以内）
+ゴーレム,カード,RPG,すごろく,職業,ファンタジー,ボードゲーム,記憶,ターン制,カードバトル
+
+（89文字）
+
+
+■ 新機能（1.0.0）
+初回リリース。サイコロすごろくと職業カードバトルで、失われた世界を緑に還します。
+
+
+■ 年齢制限アンケート（目安）
+Cartoon or Fantasy Violence：Infrequent/Mild　→ 9+
+Horror / Mature / Drugs / Gambling / Unrestricted Web：なし
+シミュレートされたギャンブル：なし（サイコロはゲーム進行用）
+ユーザー生成コンテンツ・チャット：なし
+→ 結果は 9+ になることが多い
+
+
+■ App プライバシー
+データ収集：なし（Data Not Collected）
+トラッキング：なし（Ask App Not to Track も出さない）
+アカウント：なし
+広告：なし
+ネットワーク：なし（完全オフライン。BGMは端末内生成）
+保存：このiPhoneの中だけ（途中経過・最高緑化・設定）
+
+プライバシーポリシーURL（必須）
+https://gamitoys.github.io/golem-job-card/privacy.html
+（下の privacy.html を GitHub Pages に置いた想定。別ドメインがあれば差し替え）
+
+
+■ 審査メモ（Notes for Review）
+Japanese portrait game. No account, no ads, no network.
+Title → はじめる → story → roll the dice (tap the cube) → swipe a card up to attack.
+If HP reaches 0, use「この丘の初めから」or「最初から」.
+There is no IAP. Price is paid up front.
+
+
+■ Xcode に載せるもの
+web/index.html  … 販売用（デバッグメニューなし）
+icon/AppIcon-1024.png  … App Store 用 1024（透明度なし）
+前回のワイヤーフレームダンジョンと同じく、WKWebView で index.html を読めば審査は通りやすいです。
+
+Info.plist の確認
+- UIRequiresFullScreen = YES
+- UIStatusBarHidden = YES（または同じ見た目）
+- UISupportedInterfaceOrientations = Portrait のみ
+- ITSAppUsesNonExemptEncryption = NO（HTTPSも自前通信もなし）
+- NSUserTrackingUsageDescription は入れない
+
+
+■ スクリーンショット
+screenshots/iPhone_6.5_1242x2688/　… 6.5インチ（XS Max / 11 Pro Max）
+screenshots/iPhone_6.7_1290x2796/　… 6.7インチ（14 Pro Max など、今の必須枠）
+
+順番：
+1 タイトル
+2 すごろく
+3 カードバトル
+4 職の相性じゃんけん
+5 頂上の緑（クリア）
+
+
+■ 価格
+日本：¥370
+他国：Price Schedule で ¥370 に一番近い有料ティア（多くの場合 $2.99）
+IAP：なし
+売り切れ後の復元：有料アプリなので不要
