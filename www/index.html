@@ -1014,12 +1014,16 @@ function beep(f, d, type){
     o.stop(ctx.currentTime+(d||0.12));
   }catch(e){}
 }
-function startBgm(){
+function startBgm(force){
   if(window.__bgmOn===false) return;
   const ctx = ensureAudio();
   if(!ctx) return;
-  if(ctx.state==="suspended") ctx.resume();
-  if(bgmOn && bgmTimer) return;
+  if(ctx.state==="suspended"){
+    try{ ctx.resume(); }catch(e){}
+  }
+  if(!force && bgmOn && bgmTimer && ctx.state==="running") return;
+  clearTimeout(bgmTimer);
+  bgmTimer = null;
   bgmOn = true;
   if(!startBgm.master){
     startBgm.master = ctx.createGain();
@@ -1086,10 +1090,23 @@ function startBgm(){
   clearTimeout(bgmTimer);
   tick();
 }
+function pauseBgmClock(){
+  try{ clearTimeout(bgmTimer); }catch(e){}
+  bgmTimer = null;
+}
+function resumeBgmClock(){
+  if(window.__bgmOn===false) return;
+  startBgm(true);
+}
 document.addEventListener("visibilitychange", ()=>{
-  if(!document.hidden) startBgm();
+  if(document.hidden) pauseBgmClock();
+  else resumeBgmClock();
 });
-document.addEventListener("touchstart", ()=>{ if(bgmOn) startBgm(); }, {passive:true});
+window.addEventListener("pageshow", resumeBgmClock);
+window.addEventListener("focus", resumeBgmClock);
+document.addEventListener("resume", resumeBgmClock);
+document.addEventListener("touchstart", ()=>{ if(window.__bgmOn!==false) startBgm(true); }, {passive:true});
+document.addEventListener("pointerdown", ()=>{ if(window.__bgmOn!==false && (!bgmTimer || (audioCtx && audioCtx.state!=="running"))) startBgm(true); }, {passive:true});
 
 
 function applyStageSkin(){
