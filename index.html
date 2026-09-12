@@ -1374,7 +1374,10 @@ function refreshBag(){
 }
 function useBag(kind){
   if(S.acting) return;
-  if(S.busy && S.mode!=="fight") return;
+  if(S.busy && S.mode!=="fight"){
+    const shop=document.getElementById("shop");
+    if(!shop || shop.classList.contains("hide")) return;
+  }
   if(kind==="heal"){
     if(!(S.bagHeal>0)){ log("傷薬を持っていない"); return; }
     if(S.php>=100){ log("もう傷はない"); return; }
