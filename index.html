@@ -72,7 +72,8 @@
   #bagbar {
     position:absolute; z-index:22; pointer-events:auto;
     top: calc(env(safe-area-inset-top, 0px) + 46px);
-    left:10px; display:flex; gap:6px;
+    right:10px; left:auto;
+    display:flex; flex-direction:column; align-items:flex-end; gap:4px;
   }
   #bagbar button {
     border:0; border-radius:12px; padding:5px 9px;
