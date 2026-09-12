@@ -604,15 +604,40 @@
   #medal.gold b { background-image:var(--g41); }
   #medal span { display:block; margin-top:4px; font-size:13px; color:#ffe9a8; }
   #cover {
-    position:absolute; inset:0; z-index:480;
-    background:
+    position:absolute; inset:0; z-index:900;
+    isolation:isolate;
+    transform:translateZ(40px);
+    -webkit-transform:translateZ(40px);
+    background-color:#5a2048;
+    background-image:
       linear-gradient(180deg, rgba(40,8,28,.18), rgba(40,8,28,.72)),
-      #6a2450 var(--g42) center top / cover no-repeat;
+      var(--g42);
+    background-position:center top;
+    background-size:cover;
+    background-repeat:no-repeat;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
     padding: calc(8px + env(safe-area-inset-top)) 0 calc(8px + env(safe-area-inset-bottom));
     box-sizing:border-box;
   }
   #cover.hide { display:none !important; pointer-events:none !important; }
+  body.titleOn #hand,
+  body.titleOn .arms,
+  body.titleOn #board,
+  body.titleOn #pawn,
+  body.titleOn #foes,
+  body.titleOn #ally,
+  body.titleOn #deckpile,
+  body.titleOn #dice,
+  body.titleOn #coachCard,
+  body.titleOn .hud,
+  body.titleOn #bagbar,
+  body.titleOn #cfgBtn,
+  body.titleOn #hint,
+  body.titleOn #log {
+    visibility:hidden !important;
+    pointer-events:none !important;
+    opacity:0 !important;
+  }
   #cover.win {
     background:
       linear-gradient(180deg, rgba(18,40,20,.10), rgba(10,28,16,.50)),
@@ -690,7 +715,7 @@
   }
 </style>
 </head>
-<body>
+<body class="titleOn">
 <div id="turnphone">スマホを縦にしてください</div>
 <div id="golem-root">
 <div id="app">
@@ -1118,6 +1143,13 @@ window.addEventListener("focus", resumeBgmClock);
 document.addEventListener("resume", resumeBgmClock);
 document.addEventListener("touchstart", ()=>{ if(window.__bgmOn!==false) startBgm(true); }, {passive:true});
 document.addEventListener("pointerdown", ()=>{ if(window.__bgmOn!==false) startBgm(true); }, {passive:true});
+try{
+  const cv=document.getElementById("cover");
+  if(cv && window.MutationObserver){
+    new MutationObserver(syncTitle).observe(cv,{attributes:true,attributeFilter:["class"]});
+  }
+  syncTitle();
+}catch(e){}
 if(!window.__bgmWatch){
   window.__bgmWatch = setInterval(()=>{
     if(window.__bgmOn===false || document.hidden) return;
@@ -1133,8 +1165,14 @@ function applyStageSkin(){
   const n = Math.min(4, Math.max(1, S.stage||1));
   app.classList.add("s"+n);
 }
+function syncTitle(){
+  const cover=document.getElementById("cover");
+  const on = !!(cover && !cover.classList.contains("hide"));
+  document.body.classList.toggle("titleOn", on);
+}
 function bars(){
   try{ applyStageSkin(); }catch(e){}
+  try{ syncTitle(); }catch(e){}
   document.getElementById("php").style.width = Math.max(0,S.php)+"%";
   document.getElementById("gbar").style.width = Math.min(100,S.green)+"%";
   const mpEl = document.getElementById("mpb");
