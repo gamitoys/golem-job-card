@@ -1,0 +1,11 @@
+{
+  "appId": "works.gamitoys.golemjobcard",
+  "appName": "Golem job card",
+  "webDir": "www",
+  "backgroundColor": "#2a1420",
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "scheme": "Golem job card"
+  }
+}

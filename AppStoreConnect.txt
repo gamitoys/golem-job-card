@@ -101,7 +101,8 @@ Horror / Mature / Drugs / Gambling / Unrestricted Web：なし
 
 プライバシーポリシーURL（必須）
 https://gamitoys.github.io/golem-job-card/privacy.html
-（下の privacy.html を GitHub Pages に置いた想定。別ドメインがあれば差し替え）
+サポートURL
+https://gamitoys.github.io/golem-job-card/support.html
 
 
 ■ 審査メモ（Notes for Review）
