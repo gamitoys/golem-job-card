@@ -655,7 +655,7 @@
     overflow:hidden;
   }
   #titleLogo {
-    width:84%; max-width:400px; max-height:16vh; height:auto; display:block; margin:8px auto 0; object-fit:contain; flex:0 0 auto;
+    width:84%; max-width:400px; max-height:15vh; height:auto; display:block; margin:4px auto 0; object-fit:contain; flex:0 0 auto;
     filter:drop-shadow(0 4px 10px rgba(0,0,0,.55));
     pointer-events:auto;
     cursor:pointer;
@@ -667,12 +667,12 @@
   #coverTitle.hide { display:none !important; }
   #titleHero {
     position:relative; left:auto; top:auto; transform:none;
-    width:86%; max-width:420px; flex:1 1 auto; min-height:0;
-    object-fit:contain; object-position:center center;
-    margin:0 auto;
+    width:100%; max-width:none; flex:1 1 auto; min-height:0;
+    object-fit:contain; object-position:center top;
     pointer-events:none; z-index:1;
     filter:drop-shadow(0 10px 12px rgba(0,0,0,.45));
-    margin:2px 0 0;
+    margin:-6px auto 0;
+    align-self:stretch;
   }
   #titleHero.hide { display:none !important; }
   #loseHero {
