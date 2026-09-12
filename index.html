@@ -2090,8 +2090,8 @@ function jkPlay(i){
   box.querySelectorAll(".card").forEach(c=>{ c.style.animation="jkshake .28s"; });
   const mk=document.createElement("div");
   mk.className="jkmark";
-  mk.textContent = r==="win"?"◯": r==="lose"?"×":"−";
-  mk.style.color = r==="win"?"#7ad06a": r==="lose"?"#e07070":"#ffe9a8";
+  mk.textContent = r==="win"?"◯": r==="lose"?"×":"△";
+  mk.style.color = r==="win"?"#7ad06a": r==="lose"?"#e07070":"#5fdc6a";
   box.appendChild(mk);
   setTimeout(()=>mk.remove(), 1400);
   st.lock=true;
