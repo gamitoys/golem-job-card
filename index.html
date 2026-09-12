@@ -997,8 +997,10 @@ let audioCtx=null, bgmTimer=null, bgmOn=false;
 function ensureAudio(){
   const AC = window.AudioContext||window.webkitAudioContext;
   if(!AC) return null;
-  if(!audioCtx) audioCtx = new AC();
-  if(audioCtx.state==="suspended") audioCtx.resume();
+  if(!audioCtx || audioCtx.state==="closed"){
+    audioCtx = new AC();
+    startBgm.master = null;
+  }
   return audioCtx;
 }
 function beep(f, d, type){
@@ -1017,14 +1019,20 @@ function startBgm(force){
   if(window.__bgmOn===false) return;
   const ctx = ensureAudio();
   if(!ctx) return;
-  if(ctx.state==="suspended"){
-    try{ ctx.resume(); }catch(e){}
+  if(ctx.state==="suspended" || ctx.state==="interrupted"){
+    if(startBgm._wait) return;
+    startBgm._wait = true;
+    Promise.resolve(ctx.resume()).finally(()=>{
+      startBgm._wait = false;
+      startBgm(true);
+    });
+    return;
   }
   if(!force && bgmOn && bgmTimer && ctx.state==="running") return;
   clearTimeout(bgmTimer);
   bgmTimer = null;
   bgmOn = true;
-  if(!startBgm.master){
+  if(!startBgm.master || startBgm.master.context !== ctx){
     startBgm.master = ctx.createGain();
     startBgm.master.gain.value = 0.09;
     startBgm.master.connect(ctx.destination);
@@ -1105,7 +1113,14 @@ window.addEventListener("pageshow", resumeBgmClock);
 window.addEventListener("focus", resumeBgmClock);
 document.addEventListener("resume", resumeBgmClock);
 document.addEventListener("touchstart", ()=>{ if(window.__bgmOn!==false) startBgm(true); }, {passive:true});
-document.addEventListener("pointerdown", ()=>{ if(window.__bgmOn!==false && (!bgmTimer || (audioCtx && audioCtx.state!=="running"))) startBgm(true); }, {passive:true});
+document.addEventListener("pointerdown", ()=>{ if(window.__bgmOn!==false) startBgm(true); }, {passive:true});
+if(!window.__bgmWatch){
+  window.__bgmWatch = setInterval(()=>{
+    if(window.__bgmOn===false || document.hidden) return;
+    const dead = !bgmTimer || !audioCtx || audioCtx.state!=="running";
+    if(bgmOn && dead) startBgm(true);
+  }, 1500);
+}
 
 
 function applyStageSkin(){
@@ -2102,7 +2117,7 @@ function reset(fromSave){
   cover0.classList.add("hide");
   const an=document.getElementById("announce");
   if(an){ an.classList.add("hide"); an.classList.remove("shop"); }
-  startBgm();
+  startBgm(true);
   try{ if(!localStorage.getItem(TUT_KEY) && !fromSave) showTut(0); }catch(e){}
   applyStageSkin(); buildBoard(); bars(); renderHand(); setMode("move");
   log(fromSave ? "記憶の途中から歩く" : LORE.start);
