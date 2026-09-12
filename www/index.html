@@ -325,8 +325,8 @@
     left:8px; right:auto; top: calc(env(safe-area-inset-top, 0px) + 118px);
     background:rgba(20,8,14,.9); color:#ffe9a8;
   }
-  body.fight #cfgBtn, #jk:not(.hide) ~ #cfgBtn, #cover:not(.hide) ~ * #cfgBtn { display:none !important; }
-  body.fight #cfgBtn { display:none !important; }
+  body.fight #cfgBtn,
+  body.modalOn #cfgBtn { display:none !important; }
   #dbg { position:absolute; inset:0; z-index:500; background:rgba(8,4,10,.72); display:flex; align-items:center; justify-content:center; pointer-events:auto; }
   #dbg.hide { display:none !important; pointer-events:none !important; }
   #dbg .tutbox { max-height:78%; overflow:auto; }
@@ -395,7 +395,7 @@
     background:linear-gradient(#7ad06a,#2f8a45); color:#083012; font-weight:800; font-size:16px;
   }
   #announce {
-    position:absolute; left:8%; right:8%; top:18%; z-index:31;
+    position:absolute; left:8%; right:8%; top:18%; z-index:90;
     background:rgba(18,8,14,.88);
     border:3px solid #e8c15a; border-radius:16px;
     padding:12px 14px; text-align:center;
@@ -1402,8 +1402,9 @@ function announceMem(card, why){
     const lore = LORE[card.id]||"";
     box.innerHTML = "<b>"+title+"</b><span>"+line+"</span><span>役割「"+card.role+"」　"+card.sk+"</span>"+(lore?"<span style=\"margin-top:6px;color:#ffe9a8\">"+lore+"</span>":"");
     box.classList.remove("hide");
+    document.body.classList.add("modalOn");
     clearTimeout(announceMem.t);
-    announceMem.t=setTimeout(()=>box.classList.add("hide"), 2600);
+    announceMem.t=setTimeout(()=>{ box.classList.add("hide"); document.body.classList.remove("modalOn"); }, 2600);
   }
   popCenter(card.name.replace("の記憶",""));
 }
