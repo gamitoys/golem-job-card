@@ -2018,7 +2018,11 @@ function jkBeats(a,b){
   return "tie";
 }
 let JKST=null;
-function jkPick(){ return JK[Math.floor(Math.random()*JK.length)].id; }
+function jkPick(avoid){
+  const ids=JK.map(j=>j.id).filter(id=>id!==avoid);
+  const src=ids.length?ids:JK.map(j=>j.id);
+  return src[Math.floor(Math.random()*src.length)];
+}
 function jkHand(){
   const ids=JK.map(j=>j.id);
   for(let i=ids.length-1;i>0;i--){ const k=Math.floor(Math.random()*(i+1)); [ids[i],ids[k]]=[ids[k],ids[i]]; }
@@ -2137,7 +2141,7 @@ function jkPlay(i){
         msg+="勝ち。『"+job.name+"』が山札に入った。";
       } else msg+="勝ち。相手の"+bn+"を捕虜にした。";
     } else if(r==="lose"){ st.fw++; st.foe.push(a); msg+="負け。"+an+"が捕虜になった。"; }
-    else { st.you.push(a); st.foe.push(b); msg+="引き分け。次の札で。"; }
+    else { msg+="引き分け。次の札で。"; }
     if(st.yw>=3 || st.fw>=3){
       const win=st.yw>=3;
       msg += win ? " 3本先取した。" : " 相手が3本先取した。";
@@ -2150,8 +2154,8 @@ function jkPlay(i){
       return;
     }
     st.lock=false; st.lockAt=0; st.sel=0;
-    if(st.you.length===0) st.you.push(jkPick());
-    if(st.foe.length===0) st.foe.push(jkPick());
+    if(st.you.length===0) st.you.push(jkPick(b));
+    if(st.foe.length===0) st.foe.push(jkPick(st.you[0]));
     renderJk(msg);
   }, 1400);
 }
