@@ -578,6 +578,11 @@
     box-sizing:border-box;
   }
   #cover.hide { display:none; }
+  #cover.win {
+    background:
+      linear-gradient(180deg, rgba(18,40,20,.10), rgba(10,28,16,.50)),
+      #2a6a38 var(--g3) center top / cover no-repeat;
+  }
   .titlepack {
     position:relative; width:100%; text-align:center; z-index:2; pointer-events:none;
     flex:0 0 auto; margin:0;
@@ -1906,7 +1911,9 @@ function finishEnd(win){
   document.getElementById("coverP").innerHTML = body;
   const st=document.getElementById("studio");
   if(st) st.style.display = "none";
-  document.getElementById("cover").classList.remove("hide");
+  const coverEl=document.getElementById("cover");
+  coverEl.classList.toggle("win", !!win);
+  coverEl.classList.remove("hide");
   document.getElementById("start").textContent = "最初から";
   const ag=document.getElementById("again");
   if(ag) ag.style.display = win ? "block" : "none";
@@ -1972,7 +1979,9 @@ function reset(fromSave){
   if(th){ th.classList.add("hide"); th.textContent=""; }
   const md0=document.getElementById("medal");
   if(md0) md0.className="hide";
-  document.getElementById("cover").classList.add("hide");
+  const cover0=document.getElementById("cover");
+  cover0.classList.remove("win");
+  cover0.classList.add("hide");
   const an=document.getElementById("announce");
   if(an){ an.classList.add("hide"); an.classList.remove("shop"); }
   startBgm();
