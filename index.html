@@ -2388,7 +2388,14 @@ const coverTitleEl=document.getElementById("coverTitle");
 if(coverTitleEl) coverTitleEl.addEventListener("click", bumpDebug);
 function bindTap(el, fn){
   if(!el) return;
-  const go=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); }catch(err){} fn(e); };
+  let lock=0;
+  const go=(e)=>{
+    try{ e.preventDefault(); e.stopPropagation(); }catch(err){}
+    const n=Date.now();
+    if(n-lock<400) return;
+    lock=n;
+    fn(e);
+  };
   el.addEventListener("pointerup", go);
   el.addEventListener("click", go);
 }
