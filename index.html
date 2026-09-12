@@ -32,7 +32,9 @@
   .stage {
     position:absolute; inset:0;
     background:#6a2450 var(--g0) center top / cover no-repeat;
+    transition: filter .4s ease;
   }
+  body.fight .stage { filter: brightness(.58) saturate(.9); }
   #app.s1 .stage { background:#6a6a72 var(--g1) center top / cover no-repeat; }
   #app.s2 .stage { background:#6a4a20 var(--g2) center top / cover no-repeat; }
   #app.s4 .stage { background:#2a6a38 var(--g3) center top / cover no-repeat; }
@@ -51,6 +53,15 @@
     background: radial-gradient(circle at 50% 32%, rgba(70,160,80,var(--v,0)), transparent 55%);
     mix-blend-mode: soft-light;
   }
+  #battleDim {
+    position:absolute; inset:0; z-index:5; pointer-events:none;
+    opacity:0;
+    transition: opacity .4s ease;
+    background:
+      radial-gradient(ellipse at 50% 36%, rgba(0,0,0,0) 18%, rgba(10,4,16,.62) 78%, rgba(8,2,12,.78) 100%),
+      linear-gradient(180deg, rgba(40,8,16,.12), rgba(8,2,10,.28));
+  }
+  body.fight #battleDim { opacity:1; }
 
   .hud {
     position:absolute; top:0; left:0; right:0; z-index:20;
@@ -615,6 +626,7 @@
 <div id="golem-root">
 <div id="app">
   <div class="stage"><div class="veil" id="veil"></div><div class="path"></div></div>
+  <div id="battleDim"></div>
   <div class="hud">
     <div class="pill">♥ <div class="bar"><i id="php"></i></div></div>
     <div class="pill">💧 <div class="bar"><i id="mpb"></i></div></div>
